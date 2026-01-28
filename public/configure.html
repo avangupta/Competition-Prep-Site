@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customize Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body id="configure">
+
+<div class="header">
+    <button onclick="location.href='/'">Back</button>
+  </div>
+
+<h1 id="botName">Bot Name</h1>
+
+<div class="container">
+
+  <div class="config-card">
+  <h3 class="config-title">Mode</h3>
+
+  <div class="option-group">
+    <label class="option-card">
+      <input type="radio" name="mode" value="practice" checked>
+      <span class="option-title">Practice</span>
+      <span class="option-desc">No pressure</span>
+    </label>
+
+    <label class="option-card">
+      <input type="radio" name="mode" value="timed">
+      <span class="option-title">Timed</span>
+      <span class="option-desc">Per-question timer</span>
+    </label>
+
+    <label class="option-card">
+      <input type="radio" name="mode" value="sudden">
+      <span class="option-title">Sudden Death</span>
+      <span class="option-desc">One mistake ends the run</span>
+    </label>
+  </div>
+</div>
+
+
+
+
+  <div class="config-card">
+    <h3 class="config-title">Options</h3>
+
+    <div class="option-group">
+
+    <label class="option-card">
+      <input type="checkbox" id="randomOrder" checked>
+      <span class="option-title">Random Order</span>
+      <span class="option-desc">Questions are scrambled</span>
+    </label>
+
+     <div id="timeOptions" class="hidden">
+      <label class="option-card">
+        <input type="number" id="timeLimit" value="15" min="1">
+        <span class="option-title">Time Limit</span>
+        <span class="option-desc">Time to answer question(in seconds)</span>
+      </label>
+    </div>
+
+    </div>
+  </div>
+
+  <button id="startBtn" class="primary">
+    Start Quiz
+  </button>
+
+</div>
+
+<script src="configure.js"></script>
+</body>
+</html>

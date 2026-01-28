@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<body id="create">
+<link rel="stylesheet" href="style.css">
+<button onclick="location.href='/'">Back</button>
+
+<h2>Build a Bot</h2>
+<div class="container">
+<form id="form" enctype="multipart/form-data">
+  <div class="config-card">
+    <h3 class="config-title">Bot Settings</h3>
+    <input name="name" placeholder="Bot name:" required><br>
+    <input type="file" name="file" accept=".txt,.pdf" ><br>
+    <input name="fileURL" placeholder="Or paste a file URL (txt/pdf)" />
+    <p class="hint">Either upload a file or provide a URL</p>
+
+
+
+  </div>
+
+  <div class="config-card">
+    <h3 class="config-title">Parsing Mode</h3>
+
+    <div class="option-group">
+      <label class="option-card">
+        <input type="radio" name="mode" value="prefix" checked>
+        <span class="option-title">Prefixes</span>
+        <span class="option-desc">Question:, Answer:, Tossup, Bonus, anything</span>
+      </label>
+
+      <label class="option-card">
+        <input type="radio" name="mode" value="line">
+        <span class="option-title">Line-by-line</span>
+        <span class="option-desc">Fixed spacing between lines</span>
+      </label>
+    </div>
+
+  </div>
+
+  <!-- PREFIX OPTIONS -->
+  <div class="config-card" id="prefixOptions">
+    <h3 class="config-title">Prefixes</h3>
+
+    <input name="qPrefixes" placeholder="Question prefixes (comma-separated)">
+
+    <input name="aPrefixes" placeholder="Answer prefixes (comma-separated)">
+  </div>
+
+  <!-- LINE OPTIONS -->
+  <div class="config-card" id="lineOptions" style="display:none">
+    <h3 class="config-title">Line Parsing</h3>
+
+    <input type="number" name="startLine" placeholder="Starting line(first question)">
+    <input type="number" name="QADiff" placeholder="Answer offset">
+    <input type="number" name="QQDiff" placeholder="Lines per question">
+  </div>
+
+  <!-- SHAVE OPTIONS -->
+  <div class="config-card" id="advanced" style="display:block">
+    <h3 class="config-title">Shaving</h3>
+
+    <div class="option-group">
+      <input type="number" name="qFront" placeholder="Shave front of question">
+      <input type="number" name="qBack" placeholder="Shave end of question">
+      <input type="number" name="aFront" placeholder="Shave front of answer">
+      <input type="number" name="aBack" placeholder="Shave end of answer">
+    </div>
+  </div>
+
+  <button type="submit" id="createBtn">Create</button>
+
+</form>
+
+  </div>
+
+<script src="create.js"></script>
+
+</body>
+</html>
