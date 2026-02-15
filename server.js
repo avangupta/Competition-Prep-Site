@@ -12,7 +12,7 @@ const checkCorrect = require("./checkCorrect");
 
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 /* ---------- GLOBAL STATE ---------- */
 
