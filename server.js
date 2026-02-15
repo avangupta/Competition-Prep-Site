@@ -195,9 +195,9 @@ app.post("/api/answer", async (req, res) => {
   const current = game.questions[game.currentIndex];
 
 const correct =
-    await checkCorrect(answer.trim().toLowerCase(), current.answer.trim().toLowerCase());
-    /* answer.trim().toLowerCase() ===
-    current.answer.trim().toLowerCase(); */
+    / *await checkCorrect(answer.trim().toLowerCase(), current.answer.trim().toLowerCase()); */
+    answer.trim().toLowerCase() ===
+    current.answer.trim().toLowerCase();
 
   if (!current) {
     return res.json({
