@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<body id="quiz">
+<link rel="stylesheet" href="style.css">
+<button id="back">Back</button>
+<h1 id="title"></h1>
+
+<div id="qCard" class="card">
+
+  <div class="progress-container">
+      <div id="progressBar"></div>
+  </div>
+
+
+
+  <h2 id="question" style="min-height: 80px;"></h2>
+
+  <button id="replayBtn">🔊 Replay</button>
+
+  <div id="timer" class="timer">
+  ⏱ <span id="timeRemaining">--</span>
+  </div>
+
+  <button id="hintBtn" style="display:none;">Hint💡</button>
+  <div id="hintField">
+    <span id="ansField"></span>
+  </div>
+
+  <button id="revealBtn" style="display:none;">Reveal New Word</button>
+
+
+  <span id="streak">0</span>
+
+  <input id="answer" placeholder="Your answer" />
+  <button id="submitBtn" onclick="submit()">Submit</button>
+
+  <p id="feedback"></p>
+  <button id="nextBtn" style="display:none;">Next →</button>
+  <button id="backBtn" style="display:none;">Back ⬅</button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="quiz.js" defer></script>
+
+</body>
+</html>

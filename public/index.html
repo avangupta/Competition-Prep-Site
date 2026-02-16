@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<body id="index">
+<link rel="stylesheet" href="style.css">
+<button onclick="location.href='/auth/google'" id="loginBtn">
+  Sign in with Google
+</button>
+<button onclick="location.href='/profile.html'" id="profileBtn">
+  My Profile
+</button>
+
+<form id="logoutBtn" action="/auth/logout" method="GET">
+  <button type="submit" class="button">
+    Logout
+  </button>
+</form>
+
+<h1>Select a Bot</h1>
+
+<button onclick="location.href='/create.html'">Build a Bot</button>
+
+<br>
+
+<button onclick="location.href='/browse.html'">
+  Browse Community Bots
+</button>
+
+<br>
+
+<h2>Your Private Bots</h2>
+
+<div id="botListPrivate"></div>
+
+<br>
+
+<h2>Your Public Bots</h2>
+
+<div id="botListPublic"></div>
+
+<br>
+
+<h2>Your Favorited Bots</h2>
+
+<div id="botListFavorite"></div>
+
+<br>
+
+
+
+<script src="index.js"></script>
+
+</body>
+</html>
