@@ -133,7 +133,7 @@ app.post("/api/start-game", async (req, res) => {
   botName,
   mode,
   questions,
-  currentIndex: 0,
+  currentIndex: -1,
   score: 0,
   questionStartTime: Date.now(),
   timeLimit: mode === "timed" ? timeLimit : null,
@@ -152,17 +152,20 @@ app.get("/api/question", (req, res) => {
   if (game.done) {
   return res.json({
     done: true,
+    mode1: game.mode,
     score: game.score,
     questions: game.questions.length,
     botName: game.botName
   });
 }
+game.currentIndex++;
 
   const q = game.questions[game.currentIndex];
 
   if (!q) {
     return res.json({
       done: true,
+      mode1: game.mode,
       score: game.score,
       questions: game.questions.length,
       botName: game.botName
@@ -174,6 +177,90 @@ app.get("/api/question", (req, res) => {
 
   res.json({
     question: q.question,
+    answer: q.answer,
+    mode: game.mode,
+    botName: game.botName,
+    timeLimit: game.timeLimit,
+    index: game.currentIndex + 1,
+    total: game.questions.length,
+    spoken: game.spoken
+  });
+});
+
+app.get("/api/backquestion", (req, res) => {
+  const game = req.session.game;
+  if (!game) return res.json({ error: "No active game" });
+
+  if (game.done) {
+  return res.json({
+    done: true,
+    mode1: game.mode,
+    score: game.score,
+    questions: game.questions.length,
+    botName: game.botName
+  });
+}
+  game.currentIndex -= 1;
+  const q = game.questions[game.currentIndex];
+
+  if (!q) {
+    return res.json({
+      done: true,
+      mode1: game.mode,
+      score: game.score,
+      questions: game.questions.length,
+      botName: game.botName
+    });
+  }
+
+  // 🔥 reset per-question timer
+  game.questionStartTime = Date.now();
+
+  res.json({
+    question: q.question,
+    answer: q.answer,
+    mode: game.mode,
+    botName: game.botName,
+    timeLimit: game.timeLimit,
+    index: game.currentIndex + 1,
+    total: game.questions.length,
+    spoken: game.spoken
+  });
+});
+
+app.get("/api/samequestion", (req, res) => {
+  const game = req.session.game;
+  if (!game) return res.json({ error: "No active game" });
+
+  if (game.done) {
+  return res.json({
+    done: true,
+    mode1: game.mode,
+    score: game.score,
+    questions: game.questions.length,
+    botName: game.botName
+  });
+}
+
+  const q = game.questions[game.currentIndex];
+
+  if (!q) {
+    return res.json({
+      done: true,
+      mode1: game.mode,
+      score: game.score,
+      questions: game.questions.length,
+      botName: game.botName
+    });
+  }
+
+  // 🔥 reset per-question timer
+  game.questionStartTime = Date.now();
+
+  res.json({
+    question: q.question,
+    answer: q.answer,
+    mode: game.mode,
     botName: game.botName,
     timeLimit: game.timeLimit,
     index: game.currentIndex + 1,
@@ -196,7 +283,7 @@ app.post("/api/answer", async (req, res) => {
   const current = game.questions[game.currentIndex];
 
 const correct =
-    / *await checkCorrect(answer.trim().toLowerCase(), current.answer.trim().toLowerCase()); */
+    /* await checkCorrect(answer.trim().toLowerCase(), current.answer.trim().toLowerCase()); */
     answer.trim().toLowerCase() ===
     current.answer.trim().toLowerCase();
 
@@ -216,14 +303,13 @@ if (mode === "timed") {
   }
 
   if (elapsed >= game.timeLimit) {
-    game.currentIndex++;
 
     return res.json({
       correct: false,
       timeout: true,
       correctAnswer: current.answer,
       score: game.score,
-      done: game.currentIndex >= game.questions.length
+      done: game.currentIndex + 1 >= game.questions.length
     });
   }
 }
@@ -231,7 +317,6 @@ if (mode === "timed") {
 
   if (correct) game.score++;
 
-  game.currentIndex++;
 
   // Sudden death mode: one wrong answer ends the game
   if (game.mode === "sudden" && !correct) {
@@ -246,7 +331,7 @@ if (mode === "timed") {
   }
 
   // End of questions
-  if (game.currentIndex >= game.questions.length) {
+  if (game.currentIndex + 1 >= game.questions.length) {
     return res.json({
       correct,
       correctAnswer: current.answer,
@@ -479,5 +564,5 @@ function requireLogin(req, res, next) {
 /* ---------- START ---------- */
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at port: ${PORT}`);
 });
