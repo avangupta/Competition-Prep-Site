@@ -85,33 +85,6 @@ async function loadBots() {
         const descMaker = document.createElement("option-desc");
         descMaker.textContent = `Made by ${availableBots[name].owner}`;
 
-        const descFav = document.createElement("option-desc");
-        const favs = availableBots[name].favorited.length;
-        if (favs >= 100)
-        {
-            descFav.textContent = `${favs} people liked this💖️`;
-        }
-        else if (favs >= 50)
-        {
-            descFav.textContent = `${favs} people liked this💞️`;
-        }
-        else if (favs >= 25)
-        {
-            descFav.textContent = `${favs} people liked this💘️`;
-        }
-        else if (favs >= 10)
-        {
-            descFav.textContent = `${favs} people liked this😍️`;
-        }
-        else if (favs >= 5)
-        {
-            descFav.textContent = `${favs} people liked this💙️`;
-        }
-        else
-        {
-            descFav.textContent = `${favs} people liked this❤️`;
-        }
-
         let descQ;
         if (bigDatabase[name])
         {
@@ -149,7 +122,6 @@ async function loadBots() {
         card.appendChild(title);
         card.appendChild(botTags);
         card.appendChild(descMaker);
-        card.appendChild(descFav)
         if (bigDatabase[name])
         {
             card.appendChild(descQ);
@@ -193,7 +165,7 @@ async function loadBots() {
 
         const descMaker = document.createElement("option-desc");
         descMaker.textContent = `Made by ${availableBots[name].owner}`;
-        
+
         const descFav = document.createElement("option-desc");
         const favs = availableBots[name].favorited.length;
         if (favs >= 100)
@@ -220,7 +192,7 @@ async function loadBots() {
         {
             descFav.textContent = `${favs} people liked this❤️`;
         }
-        
+
         let descQ;
         if (bigDatabase[name])
         {
@@ -302,7 +274,7 @@ async function loadBots() {
 
         const descMaker = document.createElement("option-desc");
         descMaker.textContent = `Made by ${availableBots[name].owner}`;
-        
+
         const descFav = document.createElement("option-desc");
         const favs = availableBots[name].favorited.length;
         if (favs >= 100)
@@ -329,7 +301,7 @@ async function loadBots() {
         {
             descFav.textContent = `${favs} people liked this❤️`;
         }
-        
+
         let descQ;
         if (bigDatabase[name])
         {
