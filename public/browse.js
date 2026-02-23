@@ -106,9 +106,13 @@ async function loadBots() {
         {
             descFav.textContent = `${favs} people liked this💙️`;
         }
-        else
+        else if (favs >= 1)
         {
             descFav.textContent = `${favs} people liked this❤️`;
+        }
+        else
+        {
+            descFav.textContent = `${favs} people liked this️`;
         }
 
             let descQ;
@@ -206,9 +210,13 @@ async function loadBots() {
         {
             descFav.textContent = `${favs} people liked this💙️`;
         }
-        else
+        else if (favs >= 1)
         {
             descFav.textContent = `${favs} people liked this❤️`;
+        }
+        else
+        {
+            descFav.textContent = `${favs} people liked this️`;
         }
 
             let descQ;
