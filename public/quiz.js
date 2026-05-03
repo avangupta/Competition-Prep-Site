@@ -444,7 +444,7 @@ async function submit(autoTimeout = false) {
 
   let answer = document.querySelector("input[name='mcq']:checked");
 
-  //HELLO TEST
+  //HOLA TEST
 
   if(answer)
   {
