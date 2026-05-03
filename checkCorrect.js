@@ -2,6 +2,17 @@ const stringSimilarity = require("string-similarity");
 const natural = require("natural");
 const stemmer = natural.PorterStemmer;
 const tokenizer = new natural.WordTokenizer();
+const { pipeline } = require("@xenova/transformers");
+
+let embedder;
+
+async function loadModel() {
+  embedder = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+}
+
+loadModel();
+
+const threshold = 2;
 
 function stripPdfGarbage(s) {
   return s.toLowerCase().replace(
@@ -61,8 +72,6 @@ function semanticScore(a, b) {
   return score;
 }
 
-const threshold = 2;
-
 async function tokenMatch(user, correct) {
   if (!user || !correct) return false;
 
@@ -83,7 +92,7 @@ async function tokenMatch(user, correct) {
 }
 
 
-/* async function tokenMatch(user, correct) {
+async function tokenMatchOld(user, correct) {
   const clean = s =>
     stripPdfGarbage(s)
       .toLowerCase()
@@ -127,7 +136,7 @@ async function tokenMatch(user, correct) {
 
   // ✅ Accept mid-range similarity only
   return score > 0.25 && score < 0.8;
-} */
+}
 
 function checkCorrect(user, correct) {
   const clean = s =>
@@ -178,4 +187,85 @@ function checkCorrect(user, correct) {
   return score > 0.7;
 }
 
-module.exports = {tokenMatch, checkCorrect};
+function cleanText(text) {
+  return text
+    .toLowerCase()
+    .replace(/round\s*\d+/gi, "")
+    .replace(/page\s*\d+/gi, "")
+    .replace(/high school/gi, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalize1(text) {
+  const tokens = tokenizer.tokenize(text);
+  return tokens.map(t => stemmer.stem(t)).join(" ");
+}
+
+async function getEmbedding(text) {
+  const output = await embedder(text, { pooling: "mean", normalize: true });
+  return output.data;
+}
+
+function cosineSimilarity(a, b) {
+  let dot = 0, normA = 0, normB = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+async function checkCorrectEmbed(userAnswer, correctAnswer, SIM_THRESHOLD) {
+  const cleanUser = normalize1(cleanText(userAnswer));
+  const cleanCorrect = normalize1(cleanText(correctAnswer));
+
+  const embUser = await getEmbedding(cleanUser);
+  const embCorrect = await getEmbedding(cleanCorrect);
+
+  const similarity = cosineSimilarity(embUser, embCorrect);
+
+  if (cleanUser == cleanCorrect) return true;
+
+  if (similarity < SIM_THRESHOLD) return false;
+
+  // optional keyword guardrails if you want to
+
+  return true;
+}
+
+async function checkMC(userAnswer, correctAnswer, TL, TH) {
+  const cleanUser = normalize1(cleanText(userAnswer));
+  const cleanCorrect = normalize1(cleanText(correctAnswer));
+
+  const embUser = await getEmbedding(cleanUser);
+  const embCorrect = await getEmbedding(cleanCorrect);
+
+  const similarity = cosineSimilarity(embUser, embCorrect);
+
+  if(cleanUser == cleanCorrect) return false;
+
+  if (similarity < TL || similarity > TH) return false;
+
+  // optional keyword guardrails
+
+  return true;
+}
+
+async function checkMCVal(userAnswer, correctAnswer, TL, TH) {
+  const cleanUser = normalize1(cleanText(userAnswer));
+  const cleanCorrect = normalize1(cleanText(correctAnswer));
+
+  const embUser = await getEmbedding(cleanUser);
+  const embCorrect = await getEmbedding(cleanCorrect);
+
+  const similarity = cosineSimilarity(embUser, embCorrect);
+
+  return similarity;
+}
+
+module.exports = {checkMC, checkMCVal, checkCorrectEmbed};

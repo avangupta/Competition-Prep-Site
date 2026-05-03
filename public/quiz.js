@@ -442,7 +442,17 @@ async function submit(autoTimeout = false) {
   document.getElementById("revealBtn").disabled = true;
   document.getElementById("revealBtn").style.display = "none";
 
-  const answer = answerInput.value || document.querySelector("input[name='mcq']:checked").value;
+  let answer = document.querySelector("input[name='mcq']:checked");
+
+  if(answer)
+  {
+     answer = answer.value;
+  }
+  else
+  {
+     answer = answerInput.value;
+  }
+
   let res;
 
   try {
@@ -467,13 +477,8 @@ async function submit(autoTimeout = false) {
 
   if (data.mode === "speedrun")
   {
-    console.log("sus");
     nextBtn.click();
     return;
-  }
-  else
-  {
-    console.log(data.mode);
   }
 
   const feedback = document.getElementById("feedback");

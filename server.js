@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const multer = require("multer");
 const fs = require("fs");
+const fsdel = require('fs').promises;
 const path = require("path");
 const downloadFile = require("./utils/downloadFile");
 require("dotenv").config();
@@ -295,15 +296,16 @@ app.get("/api/getMC", async (req, res) => {
 
     for(const question of questions) {
         const answer = question.answer;
-        console.log(await check.tokenMatch(answer, accAnswer));
-        if( await check.tokenMatch(answer, accAnswer) )
+        console.log(await check.checkMCVal(answer, accAnswer));
+        if( await check.checkMC(answer, accAnswer, 0.35, 0.9) )
         {
             possAnswers.push(answer);
             console.log("added answer in main");
+            if(possAnswers.length === 3) break;
         }
     }
 
-    if (possAnswers.length < 4)
+    if (possAnswers.length < 3)
     {
         for (const botName of Object.keys(availableBots)) {
             if (game.botName !== botName)
@@ -318,31 +320,46 @@ app.get("/api/getMC", async (req, res) => {
                     for (const entry of Object.values(bigDatabase[botName])) {
                         console.log(entry);
                         const answer = entry.answer;
-                        console.log(await check.tokenMatch(answer, accAnswer));
-                        if( await check.tokenMatch(answer, accAnswer) )
+                        console.log(await check.checkMCVal(answer, accAnswer));
+                        if( await check.checkMC(answer, accAnswer, 0.35, 0.9) )
                         {
                             possAnswers.push(answer);
                             console.log("added answer in backup");
+                            //if(possAnswers.length === 3) break;
                         }
                     }
                 }
             }
+            //if(possAnswers.length === 3) break;
         }
     }
 
-    if (possAnswers.length < 4)
+    if(possAnswers.length < 3) console.log("Why bro");
+
+    possAnswers.push(accAnswer);
+    for (let i = possAnswers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [possAnswers[i], possAnswers[j]] = [possAnswers[j], possAnswers[i]];
+    }
+    return res.json(possAnswers);
+
+    /*
+    if (possAnswers.length < 3)
     {
         possAnswers.push(accAnswer);
         console.log("1");
-        possAnswers.sort(() => Math.random() - 0.5);
+        for (let i = possAnswers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [possAnswers[i], possAnswers[j]] = [possAnswers[j], possAnswers[i]];
+        }
         return res.json(possAnswers);
     }
     else
     {
-        /* const newPoss = possAnswers.slice(0, 3);
+        const newPoss = possAnswers.slice(0, 3);
         newPoss.push(accAnswer);
         newPoss.sort(() => Math.random() - 0.5);
-        return res.json(newPoss); */
+        return res.json(newPoss);
 
         // Fisher-Yates shuffle
         for (let i = possAnswers.length - 1; i > 0; i--) {
@@ -360,7 +377,7 @@ app.get("/api/getMC", async (req, res) => {
 
         return res.json(newPoss);
     }
-
+    */
 });
 
 // Submit answer
@@ -376,7 +393,7 @@ app.post("/api/answer", async (req, res) => {
   const current = game.questions[game.currentIndex];
 
 const correct =
-    await check.checkCorrect(answer.trim().toLowerCase(), current.answer.trim().toLowerCase());
+    await check.checkCorrectEmbed(answer.trim().toLowerCase(), current.answer.trim().toLowerCase(), 0.75);
     /* answer.trim().toLowerCase() ===
     current.answer.trim().toLowerCase(); */
 
@@ -532,13 +549,31 @@ if (req.body.fileURL) {
 
   if (!req.body.edit)
   {
-     if (!bigDatabase[name]) {
+    let val = "";
+    while (bigDatabase[name + val])
+    {
+        if(!val)
+        {
+            val = " 1";
+        }
+        else
+        {
+            val = " " + (parseInt(val, 10) + 1);
+        }
+    }
+    console.log(val + " is val.");
+    newname = name;
+    if(val)
+    {
+        newname = name + val;
+    }
+    if (!bigDatabase[newname]) {
         const ext = path.extname(req.file.originalname); // ".pdf" or ".txt"
         const newPath = req.file.path + ext;
         fs.renameSync(req.file.path, newPath);
 
         //Register bot
-        availableBots[name] = {
+        availableBots[newname] = {
           file: newPath,
           config,
           owner: req.user.name,
@@ -548,12 +583,16 @@ if (req.body.fileURL) {
           favorited: []
         }
 
-        delete bigDatabase[name];
+        delete bigDatabase[newname];
 
-        bigDatabase[name] = await parseFile(
-        availableBots[name].file,
+        bigDatabase[newname] = await parseFile(
+        availableBots[newname].file,
         config
         );
+        if(val)
+        {
+            console.log("Your name was changed to " + newname + ".");
+        }
     }
     else
     {
@@ -640,6 +679,8 @@ app.post("/api/delete", requireLogin, async (req, res) => {
     }
 
     const { name } = req.body;
+
+    await fsdel.unlink(availableBots[name].file);
 
     delete availableBots[name];
     delete bigDatabase[name];
