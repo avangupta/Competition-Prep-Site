@@ -1,0 +1,7 @@
+node-modules/
+.env
+botRunnerTerminal.js
+.idea/
+*.pdf
+*.txt
+.DS_Store

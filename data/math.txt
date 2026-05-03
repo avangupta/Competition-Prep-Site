@@ -1,8 +1,0 @@
-Question: What is 5 times 5?
-Answer: 25
-
-Question: What is b^2 - 4ac?
-Answer: Discriminant
-
-Question: Sally is 8 and Jimbob is half her age. How old is Jimbob when Sally is 2000?
-Answer: 1996
