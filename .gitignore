@@ -1,6 +1,7 @@
 node_modules/
 .env
 botRunnerTerminal.js
+bot.js
 .idea/
 *.pdf
 *.txt

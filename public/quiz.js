@@ -499,7 +499,7 @@ async function submit(autoTimeout = false) {
     feedback.className = "feedback timeout";
     streak = 0;
   } else if (data.correct && elapsed === -1 && speakingEnabled) {
-    feedback.textContent = "✔Interrupt!!🚀";
+    feedback.textContent = "🚀Interrupt!!";
     feedback.className = "feedback interrupt";
     streak++;
     if (streak > maxStreak) { maxStreak++ };

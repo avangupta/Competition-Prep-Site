@@ -6,15 +6,17 @@ const fsdel = require('fs').promises;
 const path = require("path");
 const downloadFile = require("./utils/downloadFile");
 require("dotenv").config();
+const {GoogleGenAI: GeminiAI} = require("@google/genai");
 
 const Bot = require("./bot");
 const parseFile = require("./parseFile");
 const check = require("./checkCorrect");
 
-
 const app = express();
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
+
+const TD_Grader = new GeminiAI({ apiKey: process.env.GOOGLE_API_KEY_TD_GRADER });
 
 /* ---------- GLOBAL STATE ---------- */
 
@@ -65,9 +67,11 @@ const availableBots = {
   }
 };
 
+const users = {};
+
 const bigDatabase = {};
 
-async function updateBigData() {
+async function updateBigDatabase() {
 bigDatabase["Earth Science Bot"] = await parseFile(
       availableBots["Earth Science Bot"].file,
       availableBots["Earth Science Bot"].config
@@ -84,7 +88,7 @@ bigDatabase["Biology Bot"] = await parseFile(
 );
 }
 
-updateBigData();
+updateBigDatabase();
 
 /* ---------- MIDDLEWARE ---------- */
 
@@ -117,6 +121,10 @@ const upload = multer({ dest: "uploads/" });
 // List bots
 app.get("/api/bots", async (req, res) => {
   res.json({availableBots, bigDatabase});
+});
+
+app.get("/api/questions", async (req, res) => {
+  res.json(bigDatabase);
 });
 
 // Select bot
@@ -296,7 +304,7 @@ app.get("/api/getMC", async (req, res) => {
 
     for(const question of questions) {
         const answer = question.answer;
-        console.log(await check.checkMCVal(answer, accAnswer));
+        console.log(await check.checkVal(answer, accAnswer));
         if( await check.checkMC(answer, accAnswer, 0.35, 0.9) )
         {
             possAnswers.push(answer);
@@ -320,7 +328,7 @@ app.get("/api/getMC", async (req, res) => {
                     for (const entry of Object.values(bigDatabase[botName])) {
                         console.log(entry);
                         const answer = entry.answer;
-                        console.log(await check.checkMCVal(answer, accAnswer));
+                        console.log(await check.checkVal(answer, accAnswer));
                         if( await check.checkMC(answer, accAnswer, 0.35, 0.9) )
                         {
                             possAnswers.push(answer);
@@ -392,10 +400,13 @@ app.post("/api/answer", async (req, res) => {
   let { answer, elapsed } = req.body;
   const current = game.questions[game.currentIndex];
 
-const correct =
-    await check.checkCorrectEmbed(answer.trim().toLowerCase(), current.answer.trim().toLowerCase(), 0.75);
-    /* answer.trim().toLowerCase() ===
-    current.answer.trim().toLowerCase(); */
+  const correctVal = await check.checkVal(answer.trim().toLowerCase(), current.answer.trim().toLowerCase());
+  console.log(correctVal);
+  const correct = correctVal >= 0.75 || answer.trim().toLowerCase() == current.answer.trim().toLowerCase();
+  //await check.checkCorrectEmbed(answer.trim().toLowerCase(), current.answer.trim().toLowerCase(), 0.75);
+  // answer.trim().toLowerCase() === current.answer.trim().toLowerCase();
+
+  updateBook(correctVal, correct, game.botName, current.question, req.user ? users[req.user.googleId] : null);
 
   if (!current) {
     return res.json({
@@ -463,6 +474,122 @@ if (mode === "timed") {
   });
 });
 
+async function updateBook(val, correct, name, question, user)
+{
+    let topics = [];
+    let diff = 0;
+
+    let questionNum = 0;
+    for(let i = 0; i < bigDatabase[name].length; i++)
+    {
+        if(bigDatabase[name][i].question == question)
+        {
+            questionNum = i;
+            break;
+        }
+    }
+
+    if(bigDatabase[name][questionNum].topics && bigDatabase[name][questionNum].diff) //gets from database
+    {
+        topics = bigDatabase[name][questionNum].topics;
+        diff = bigDatabase[name][questionNum].diff;
+    }
+    else//Gemini 3.1 Flash Lite generates
+    {
+        const topicResponseRaw = await TD_Grader.models.generateContent({
+          model: "gemini-3.1-flash-lite",
+          contents: `Generate ONLY a comma-separated(no spaces after commas) list of 1 umbrella topic and 1 specific \
+subtopic, nothing else, for the question: '${question}'. Some subtopics \
+could be microbiology, glaciology, phonetics, or others that fit well. The umbrella topic can only \
+be earth science, astronomy, biology, chemistry, physics, math, literature, or history. Capitalize the first \
+letter of all words. The subtopic does not have to be the answer, and it has to be one word.`
+        });
+
+        topics = topicResponseRaw.text.split(",");
+
+        console.log(topics);
+
+        //-----
+
+        const diffResponseRaw = await TD_Grader.models.generateContent({
+          model: "gemini-3.1-flash-lite",
+          contents: `Grade the question: '${question}' out of 100 based on solely difficulty. The upper end of the \
+scale should include questions which require deep insight on subtopics, and the lower end requires surface \
+level insight. The response must only be the number, no scale. Only evaluate based on cognitive effort \
+required and how commonly known it is. 'What are the outer features of an organism called in genetics?' is \
+difficulty 30. 'Where, when, and to which parents was Pythagoras born?' is difficulty 90.`
+        });
+
+        diff = parseInt(diffResponseRaw.text, 10);
+
+        console.log(diff);
+
+        bigDatabase[name][questionNum].topics = topics;
+        bigDatabase[name][questionNum].diff = diff;
+    }
+
+    if(["Earth Science", "Astronomy", "Biology", "Chemistry", "Physics", "Math", "Literature", "History"].includes(topics[0]))
+    {
+        if(user)
+        {
+            if(!user.book[topics[0]][topics[1]]) //creates subtopic in book if there isn't one in the umbrella topic
+            {
+                user.book[topics[0]][topics[1]] = {
+                    level: 1,
+                    xp: 0,
+                    confidence: 0.5,
+                    questionsAnswered: 0,
+                    correctlyAnswered: 0,
+                    lastPracticed: Date.now()
+                }
+            }
+            else
+            {
+                user.book[topics[0]][topics[1]].lastPracticed = Date.now();
+            }
+
+            user.book[topics[0]][topics[1]].questionsAnswered++;
+            if(correct) user.book[topics[0]][topics[1]].correctlyAnswered++;
+            user.book[topics[0]][topics[1]].confidence += (1 - user.book[topics[0]][topics[1]].confidence) * 0.1 * (val > 1 ? 1 : val);
+
+            let xpAdded = 0;
+            if(correct)
+            {
+                xpAdded = Math.trunc(Math.sqrt(diff) * 5);
+            }
+            else
+            {
+                xpAdded = 10;
+            }
+            const levelThreshold = 25 * (user.book[topics[0]][topics[1]].level ** 2 - user.book[topics[0]][topics[1]].level + 4);
+            console.log(xpAdded);
+            console.log(levelThreshold);
+            if(user.book[topics[0]][topics[1]].xp + xpAdded > levelThreshold)
+            {
+                user.book[topics[0]][topics[1]].level++;
+                user.book[topics[0]][topics[1]].xp += xpAdded - levelThreshold;
+            }
+            else
+            {
+                user.book[topics[0]][topics[1]].xp += xpAdded;
+            }
+
+            for(umbrellaTopic in user.book)
+            {
+                for(subtopic in user.book[umbrellaTopic])
+                {
+                    if(umbrellaTopic != topics[0] || subtopic != topics[1])
+                    {
+                        user.book[umbrellaTopic][subtopic].confidence -= (user.book[umbrellaTopic][subtopic].confidence) * 0.01;
+                    }
+                }
+            }
+            //...edit subtopic based on question & answer since by now it is for sure created
+
+        }
+    }
+
+}
 
 // Create user bot
 app.post("/api/create-bot", upload.single("file"), requireLogin, async (req, res) => {
@@ -562,7 +689,7 @@ if (req.body.fileURL) {
         }
     }
     console.log(val + " is val.");
-    newname = name;
+    let newname = name;
     if(val)
     {
         newname = name + val;
@@ -648,8 +775,32 @@ app.get(
   }
 );
 
-app.get("/api/profile", (req, res) => {
+app.get("/api/profile", async (req, res) => {
   res.json(req.user || null);
+});
+
+app.get("/api/getuser", async (req, res) => {
+  const user = req.user ? users[req.user.googleId] : null;
+  res.json(user);
+});
+
+app.post("/api/addprofile", async (req, res) => {
+  if(req.user)
+  {
+    if(!users[req.user.googleId])
+    {
+        users[req.user.googleId] = {theme: req.body.theme, book: {
+        "Earth Science": {},
+        "Astronomy": {},
+        "Biology": {},
+        "Chemistry": {},
+        "Physics": {},
+        "Math": {},
+        "Literature": {},
+        "History": {}
+        }};
+    }
+  }
 });
 
 app.post("/api/favorite", requireLogin, async (req, res) => {

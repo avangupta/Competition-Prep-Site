@@ -256,7 +256,7 @@ async function checkMC(userAnswer, correctAnswer, TL, TH) {
   return true;
 }
 
-async function checkMCVal(userAnswer, correctAnswer, TL, TH) {
+async function checkVal(userAnswer, correctAnswer) {
   const cleanUser = normalize1(cleanText(userAnswer));
   const cleanCorrect = normalize1(cleanText(correctAnswer));
 
@@ -268,4 +268,4 @@ async function checkMCVal(userAnswer, correctAnswer, TL, TH) {
   return similarity;
 }
 
-module.exports = {checkMC, checkMCVal, checkCorrectEmbed};
+module.exports = {checkMC, checkVal};

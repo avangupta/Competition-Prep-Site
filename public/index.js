@@ -1,9 +1,8 @@
-document.addEventListener("DOMContentLoaded", () => {
-  loadButton();
+document.addEventListener("DOMContentLoaded", async() => {
+  loadButtons();
   loadBots();
 });
-
-async function loadButton()
+async function loadButtons()
 {
     const res = await fetch("/api/profile");
     const profile = await res.json();
@@ -11,13 +10,32 @@ async function loadButton()
     document.getElementById("loginBtn").style.display = profile ? "none" : "block";
     document.getElementById("logoutBtn").style.display = profile ? "block" : "none";
     document.getElementById("profileBtn").style.display = profile ? "block" : "none";
-}
 
-async function logout()
-{
-    const res = await fetch("/auth/logout");
-    const idk = await res.json();
-    window.location.reload(true);
+    const re = await fetch("/api/getuser");
+    let user;
+    try
+    {
+        user = await re.json();
+    }
+    catch(error)
+    {
+        user = null;
+    }
+
+    if(profile && !user)
+    {
+        let themePrompt = "";
+        do
+        {
+            themePrompt = prompt("Choose a valid theme: Nature, Ocean, Superheroes, Mythology, Fantasy, Science, Minimal");
+        }
+        while(!["Nature", "Ocean", "Superheroes", "Mythology", "Fantasy", "Science", "Minimal"].includes(themePrompt));
+
+        const x = await fetch("/api/addprofile",
+        {method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({theme: themePrompt}) });
+    }
 }
 
 async function returnName()
@@ -195,9 +213,13 @@ async function loadBots() {
         {
             descFav.textContent = `${favs} people liked this💙️`;
         }
-        else if (favs >= 1)
+        else if (favs > 1)
         {
             descFav.textContent = `${favs} people liked this❤️`;
+        }
+        else if (favs == 1)
+        {
+            descFav.textContent = "1 person liked this❤️";
         }
         else
         {
@@ -315,7 +337,6 @@ async function loadBots() {
         else if (favs == 1)
         {
             descFav.textContent = "1 person liked this❤️";
-            console.log("sus");
         }
         else
         {
