@@ -1,5 +1,70 @@
+let data2;
+
 document.addEventListener("DOMContentLoaded", () => {
   loadVals();
+});
+
+document.querySelectorAll(".topic-header").forEach(header => {
+
+    header.addEventListener("click", () => {
+
+        const card = header.closest(".topic-card");
+
+        const subtopics = card.querySelector(".subtopics");
+
+        const icon = card.querySelector(".expand-icon");
+
+        subtopics.classList.toggle("open");
+
+        icon.classList.toggle("open");
+
+        const open = icon.classList.contains("open");
+        const umbTopic = header.querySelector("span").id;
+        subtopics.innerHTML = null;
+        if(open)
+        {
+            for (const subtopic in data2.book[umbTopic])
+            {
+                const div = document.createElement("div");
+                div.className = "subtopic-card";
+
+                const nameHeader = document.createElement("div");
+                nameHeader.className = "subtopic-header";
+                nameHeader.innerText = subtopic;
+                div.appendChild(nameHeader);
+
+                const levelHeader = document.createElement("div");
+                levelHeader.className = "subtopic-level";
+                levelHeader.innerText = "Level " + data2.book[umbTopic][subtopic].level;
+                div.appendChild(levelHeader);
+
+                const progressContainer = document.createElement("div");
+                progressContainer.className = "progress-container";
+                const bar = document.createElement("div");
+                bar.className = "progress-bar";
+                const levelThreshold = 25 * (data2.book[umbTopic][subtopic].level ** 2 - data2.book[umbTopic][subtopic].level + 4);
+                bar.style.width = data2.book[umbTopic][subtopic].xp * 100 / levelThreshold + "%";
+                progressContainer.appendChild(bar);
+                div.appendChild(progressContainer);
+
+                div.appendChild(document.createElement("br"));
+
+                const xpHeader = document.createElement("div");
+                xpHeader.className = "subtopic-level";
+                xpHeader.innerText = data2.book[umbTopic][subtopic].xp + "/" + levelThreshold + " XP";
+                div.appendChild(xpHeader);
+
+                div.appendChild(document.createElement("br"));
+
+                const questionsHeader = document.createElement("div");
+                questionsHeader.className = "subtopic-name";
+                questionsHeader.innerText = "Answered " + data2.book[umbTopic][subtopic].correctlyAnswered + "/" + data2.book[umbTopic][subtopic].questionsAnswered + " questions correctly";
+                div.appendChild(questionsHeader);
+
+                subtopics.appendChild(div);
+            }
+        }
+    });
 });
 
 async function loadVals()
@@ -8,7 +73,7 @@ async function loadVals()
     const data1 = await res.json();
 
     const re = await fetch("/api/getuser");
-    const data2 = await re.json();
+    data2 = await re.json();
 
     if (data1)
     {
@@ -17,68 +82,16 @@ async function loadVals()
 
         document.getElementById("theme").textContent = data2.theme;
 
-        const earth = Object.values(data2.book["Earth Science"]);
-        if(earth.length > 0)
-        {
-            const sum = earth.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("es").textContent = sum/earth.length;
-        }
-        else { document.getElementById("es").textContent = 0; }
 
-        const space = Object.values(data2.book["Astronomy"]);
-        if(space.length > 0)
+        for(const umbTopic in data2.book)
         {
-            const sum = space.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("spa").textContent = sum/space.length;
+            const x = Object.values(data2.book[umbTopic]);
+            if(x.length > 0)
+            {
+                const sum = x.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
+                document.getElementById(umbTopic).textContent = Math.round(sum * 100/x.length) / 100;
+            }
+            else { document.getElementById(umbTopic).textContent = 1; }
         }
-        else { document.getElementById("spa").textContent = 0; }
-
-        const lifescience = Object.values(data2.book["Biology"]);
-        if(lifescience.length > 0)
-        {
-            const sum = lifescience.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("life").textContent = sum/lifescience.length;
-        }
-        else { document.getElementById("life").textContent = 0; }
-
-        const chemistry = Object.values(data2.book["Chemistry"]);
-        if(chemistry.length > 0)
-        {
-            const sum = chemistry.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("chem").textContent = sum/chemistry.length;
-        }
-        else { document.getElementById("chem").textContent = 0; }
-
-        const physical = Object.values(data2.book["Physics"]);
-        if(physical.length > 0)
-        {
-            const sum = physical.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("phy").textContent = sum/physical.length;
-        }
-        else { document.getElementById("phy").textContent = 0; }
-
-        const ma = Object.values(data2.book["Math"]);
-        if(ma.length > 0)
-        {
-            const sum = ma.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("math").textContent = sum/ma.length;
-        }
-        else { document.getElementById("math").textContent = 0; }
-
-        const liter = Object.values(data2.book["Literature"]);
-        if(liter.length > 0)
-        {
-            const sum = liter.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("lit").textContent = sum/liter.length;
-        }
-        else { document.getElementById("lit").textContent = 0; }
-
-        const histo = Object.values(data2.book["History"]);
-        if(histo.length > 0)
-        {
-            const sum = histo.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-            document.getElementById("hist").textContent = sum/histo.length;
-        }
-        else { document.getElementById("hist").textContent = 0; }
     }
 }

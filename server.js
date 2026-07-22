@@ -16,7 +16,13 @@ const app = express();
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
-const TD_Grader = new GeminiAI({ apiKey: process.env.GOOGLE_API_KEY_TD_GRADER });
+const TD_Grader_1 = new GeminiAI({ apiKey: process.env.TD_GRADER_1 });
+const TD_Grader_2 = new GeminiAI({ apiKey: process.env.TD_GRADER_2 });
+const TD_Grader_3 = new GeminiAI({ apiKey: process.env.TD_GRADER_3 });
+const TD_Grader_4 = new GeminiAI({ apiKey: process.env.TD_GRADER_4 });
+const TD_Grader_5 = new GeminiAI({ apiKey: process.env.TD_GRADER_5 });
+const TD_Grader_List = [TD_Grader_1, TD_Grader_2, TD_Grader_3, TD_Grader_4, TD_Grader_5];
+let TD_Num = 0;
 
 /* ---------- GLOBAL STATE ---------- */
 
@@ -64,7 +70,65 @@ const availableBots = {
     access: "public",
     tags: {tag1: "Biology", tag2: "Science Bowl", tag3: "High School"},
     favorited: []
-  }
+  },
+  "Chemistry Bot": {
+    file: "data/chemistry.txt",
+    config:
+    {
+        mode: "prefix",
+        qPrefixes: ["Q:"],
+        aPrefixes: ["A:"]
+    },
+    owner: "Avan Gupta",
+    access: "public",
+    tags: {tag1: "Chemistry", tag2: "High School", tag3: "Science Bowl"},
+    favorited: []
+  },
+  "Literature Bot": {
+    file: "data/literature.txt",
+    config:
+    {
+        mode: "prefix",
+        qPrefixes: ["Q:"],
+        aPrefixes: ["A:"]
+    },
+    owner: "Avan Gupta",
+    access: "public",
+    tags: {tag1: "English", tag2: "High School", tag3: "Quiz Bowl"},
+    favorited: []
+  },
+  "History Bot": {
+    file: "data/history.txt",
+    config:
+    {
+        mode: "prefix",
+        qPrefixes: ["Q:"],
+        aPrefixes: ["A:"]
+    },
+    owner: "Avan Gupta",
+    access: "public",
+    tags: {tag1: "History", tag2: "High School", tag3: "Quiz Bowl"},
+    favorited: []
+  },
+};
+
+const availableCourses = {
+  "Glaciology for Dummies": {
+    topics: ["Earth Science", "Glaciology"],
+    difficulty: 30,
+    time: 30,
+    tags: {tag1: "Earth Science", tag2: "Glaciers", tag3: "Easy"},
+    description: "This course delves into the study of glacier formation and glacial processes, all the while putting information in an easily-understood way.",
+    owner: "Avan Gupta"
+  },
+  "Crash Course Physics": {
+    topics: ["Physics", "Entropy Sciences"],
+    difficulty: 55,
+    time: 90,
+    tags: {tag1: "Physics", tag2: "High School", tag3: "Crash Course"},
+    description: "This course delves into the study of physics, especially entropy, all the while putting information in an easily-understood way.",
+    owner: "Avan Gupta"
+  },
 };
 
 const users = {};
@@ -72,20 +136,10 @@ const users = {};
 const bigDatabase = {};
 
 async function updateBigDatabase() {
-bigDatabase["Earth Science Bot"] = await parseFile(
-      availableBots["Earth Science Bot"].file,
-      availableBots["Earth Science Bot"].config
-);
-
-bigDatabase["Math Bot"] = await parseFile(
-      availableBots["Math Bot"].file,
-      availableBots["Math Bot"].config
-);
-
-bigDatabase["Biology Bot"] = await parseFile(
-      availableBots["Biology Bot"].file,
-      availableBots["Biology Bot"].config
-);
+for(const botName in availableBots)
+    {
+        bigDatabase[botName] = await parseFile(availableBots[botName].file, availableBots[botName].config);
+    }
 }
 
 updateBigDatabase();
@@ -125,6 +179,10 @@ app.get("/api/bots", async (req, res) => {
 
 app.get("/api/questions", async (req, res) => {
   res.json(bigDatabase);
+});
+
+app.get("/api/courses", async (req, res) => {
+  res.json(availableCourses);
 });
 
 // Select bot
@@ -400,9 +458,7 @@ app.post("/api/answer", async (req, res) => {
   let { answer, elapsed } = req.body;
   const current = game.questions[game.currentIndex];
 
-  const correctVal = await check.checkVal(answer.trim().toLowerCase(), current.answer.trim().toLowerCase());
-  console.log(correctVal);
-  const correct = correctVal >= 0.75 || answer.trim().toLowerCase() == current.answer.trim().toLowerCase();
+  const {correctVal, correct} = await checkCorrect(answer, current.answer);
   //await check.checkCorrectEmbed(answer.trim().toLowerCase(), current.answer.trim().toLowerCase(), 0.75);
   // answer.trim().toLowerCase() === current.answer.trim().toLowerCase();
 
@@ -474,6 +530,20 @@ if (mode === "timed") {
   });
 });
 
+app.post("/api/answerflow", async (req, res) => {
+    let {answer, question, actual, name} = req.body;
+    const {correctVal, correct} = await checkCorrect(answer, actual);
+    updateBook(correctVal, correct, name, question, req.user ? users[req.user.googleId] : null);
+    return res.json(correct);
+});
+
+async function checkCorrect(submitted, actual)
+{
+    const correctVal = await check.checkVal(submitted.trim().toLowerCase(), actual.trim().toLowerCase());
+    const correct = correctVal >= 0.85 || submitted.trim().toLowerCase() == actual.trim().toLowerCase();
+    return {correctVal, correct};
+}
+
 async function updateBook(val, correct, name, question, user)
 {
     let topics = [];
@@ -496,6 +566,11 @@ async function updateBook(val, correct, name, question, user)
     }
     else//Gemini 3.1 Flash Lite generates
     {
+        //let TD_Grader = TD_Grader_List[ Math.trunc(  Math.random() * TD_Grader_List.length  ) ];
+        let TD_Grader = TD_Grader_List[TD_Num];
+        console.log(TD_Num);
+        TD_Num = (TD_Num + 1) % TD_Grader_List.length;
+
         const topicResponseRaw = await TD_Grader.models.generateContent({
           model: "gemini-3.1-flash-lite",
           contents: `Generate ONLY a comma-separated(no spaces after commas) list of 1 umbrella topic and 1 specific \
@@ -514,15 +589,15 @@ letter of all words. The subtopic does not have to be the answer, and it has to 
         const diffResponseRaw = await TD_Grader.models.generateContent({
           model: "gemini-3.1-flash-lite",
           contents: `Grade the question: '${question}' out of 100 based on solely difficulty. The upper end of the \
-scale should include questions which require deep insight on subtopics, and the lower end requires surface \
+scale should include questions which require deep insight on ${topics[1]}, and the lower end requires surface \
 level insight. The response must only be the number, no scale. Only evaluate based on cognitive effort \
 required and how commonly known it is. 'What are the outer features of an organism called in genetics?' is \
-difficulty 30. 'Where, when, and to which parents was Pythagoras born?' is difficulty 90.`
+difficulty 30. 'Where, when, and to which parents was Pythagoras born?' is difficulty 90. Slightly overestimate it.`
         });
 
         diff = parseInt(diffResponseRaw.text, 10);
 
-        console.log(diff);
+        console.log("Difficulty: ", diff);
 
         bigDatabase[name][questionNum].topics = topics;
         bigDatabase[name][questionNum].diff = diff;
@@ -555,15 +630,15 @@ difficulty 30. 'Where, when, and to which parents was Pythagoras born?' is diffi
             let xpAdded = 0;
             if(correct)
             {
-                xpAdded = Math.trunc(Math.sqrt(diff) * 5);
+                xpAdded = Math.round(Math.sqrt(diff) * 5);
             }
             else
             {
-                xpAdded = 10;
+                xpAdded = Math.round(Math.sqrt(diff));
             }
             const levelThreshold = 25 * (user.book[topics[0]][topics[1]].level ** 2 - user.book[topics[0]][topics[1]].level + 4);
-            console.log(xpAdded);
-            console.log(levelThreshold);
+            console.log("XP earned: ", xpAdded);
+            console.log("Level Threshold: ", levelThreshold);
             if(user.book[topics[0]][topics[1]].xp + xpAdded > levelThreshold)
             {
                 user.book[topics[0]][topics[1]].level++;
@@ -574,13 +649,13 @@ difficulty 30. 'Where, when, and to which parents was Pythagoras born?' is diffi
                 user.book[topics[0]][topics[1]].xp += xpAdded;
             }
 
-            for(umbrellaTopic in user.book)
+            for(const umbrellaTopic in user.book)
             {
-                for(subtopic in user.book[umbrellaTopic])
+                for(const subtopic in user.book[umbrellaTopic])
                 {
                     if(umbrellaTopic != topics[0] || subtopic != topics[1])
                     {
-                        user.book[umbrellaTopic][subtopic].confidence -= (user.book[umbrellaTopic][subtopic].confidence) * 0.01;
+                        user.book[umbrellaTopic][subtopic].confidence -= (user.book[umbrellaTopic][subtopic].confidence) * 0.01 * (Date.now() - user.book[umbrellaTopic][subtopic].lastPracticed) / 86400000;
                     }
                 }
             }

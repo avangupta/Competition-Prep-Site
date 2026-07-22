@@ -425,7 +425,7 @@ label {
   margin-top: 12px;
 }
 
-#progressBar {
+.progress-bar {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, #4f46e5, #6366f1);
@@ -569,4 +569,123 @@ confetti({
 .mini-option.disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* ---------- BOOK ----------- */
+
+.book-container {
+  max-width: 900px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- UMBRELLA TOPIC ---------- */
+
+.topic-card {
+  background: white;
+  border-radius: 16px;
+  padding: 18px 22px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.topic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+.topic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.topic-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.expand-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+  transition: transform 0.25s ease;
+}
+
+.expand-icon.open {
+  transform: rotate(90deg);
+}
+
+.topic-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.topic-score {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+/* ---------- SUBTOPICS ---------- */
+
+.subtopics {
+  display: none;
+  margin-top: 18px;
+  margin-left: 24px;
+  border-left: 3px solid #e5e7eb;
+  padding-left: 20px;
+}
+
+.subtopics.open {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ---------- SUBTOPIC ---------- */
+
+.subtopic-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 14px 18px;
+  transition: all 0.2s ease;
+}
+
+.subtopic-card:hover {
+  background: #f3f4f6;
+}
+
+.subtopic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subtopic-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.subtopic-level {
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 600;
+}
+
+.subtopic-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Reuses your .tag style */
+.subtopic-stats .tag {
+  margin: 0;
 }

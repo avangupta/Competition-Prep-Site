@@ -1,0 +1,8 @@
+Q: Who was the author of the New York Times Bestseller "Spy School"? (First and last name)
+A: Stuart Gibbs
+
+Q: What are the words on the top left and top right corners of a dictionary page called that dictate(dict, get it?) what the first and last words of that page are?
+A: Guide words
+
+Q: What is an esteemed award that the book "Flora and Ulysses" by Kate DiCamillo was given in 2014?
+A: Newbery Medal

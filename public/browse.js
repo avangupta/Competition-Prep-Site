@@ -48,7 +48,8 @@ async function loadBots() {
         const term = document.getElementById("search").value.toLowerCase();
         const allBotTags = availableBots[name].tags;
         if (!term || (term.includes(allBotTags.tag1.toLowerCase()) && allBotTags.tag1) || (term.includes(allBotTags.tag2.toLowerCase()) && allBotTags.tag2) || (term.includes(allBotTags.tag3.toLowerCase()) && allBotTags.tag3) ||
-        (allBotTags.tag1.toLowerCase().includes(term) && allBotTags.tag1) || (allBotTags.tag2.toLowerCase().includes(term) && allBotTags.tag2) || (allBotTags.tag3.toLowerCase().includes(term) && allBotTags.tag3) ){
+        (allBotTags.tag1.toLowerCase().includes(term) && allBotTags.tag1) || (allBotTags.tag2.toLowerCase().includes(term) && allBotTags.tag2) || (allBotTags.tag3.toLowerCase().includes(term) && allBotTags.tag3) ||
+        (name.toLowerCase().includes(term)) || (term.includes(name.toLowerCase())) ){
             if (availableBots[name].favorited.includes(profileId))
             {
             const card = document.createElement("divCommunity");
