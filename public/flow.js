@@ -27,6 +27,8 @@ async function loadQuestion()
     const res = await fetch("/api/getuser");
     const data = await res.json();
 
+    let happen = false;
+
     if(data)
     {
         const bigD = await fetch("/api/questions");
@@ -71,13 +73,15 @@ async function loadQuestion()
         }
         while(randomTopic != chosenTopic && x < 100);
 
-        if(x == 100)
+        if(x === 100)
         {
-            document.getElementById("backBtn").click();
+            happen = true;
         }
-
-        document.getElementById("question").innerText = question;
-        document.getElementById("bot").innerText = `From ${name}`;
+        else
+        {
+            document.getElementById("question").innerText = question;
+            document.getElementById("bot").innerText = `From ${name}`;
+        }
     }
     else
     {
@@ -87,6 +91,14 @@ async function loadQuestion()
 
     document.getElementById("answer").disabled = false;
     document.getElementById("submitBtn").style.display = "block";
+
+    if(happen)
+    {
+        document.getElementById("submitBtn").style.display = "none";
+        document.getElementById("answer").style.display = "none";
+        document.getElementById("question").textContent = "Answer more questions to get the best recommendations for you.";
+        document.getElementById("bot").innerText = "Please go to the Bots to answer more questions.";
+    }
 }
 
 async function submit()
