@@ -689,3 +689,109 @@ confetti({
 .subtopic-stats .tag {
   margin: 0;
 }
+
+/* -------------COURSES--------------- */
+
+.course-page {
+    max-width: 850px;
+    margin: 40px auto;
+    padding: 40px 50px;
+
+    background: white;
+    border-radius: 18px;
+
+    box-shadow: 0 12px 28px rgba(0,0,0,.08);
+
+    text-align: left;
+}
+
+.course-heading {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+    color: #111827;
+}
+
+.course-paragraph {
+    font-size: 1.08rem;
+    line-height: 1.8;
+    color: #374151;
+    margin-bottom: 18px;
+}
+
+.course-pagebreak {
+    font-size: 1.08rem;
+    line-height: 1.8;
+    color: #374151;
+    margin-bottom: 18px;
+}
+
+.course-callout {
+
+    background: #eef6ff;
+
+    border-left: 6px solid #2563eb;
+
+    padding: 18px;
+
+    margin: 24px 0;
+
+    border-radius: 10px;
+
+    color: #1e3a8a;
+
+    font-weight: 500;
+}
+
+.course-example {
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+
+    padding: 18px;
+
+    border-radius: 12px;
+
+    margin: 24px 0;
+}
+
+.course-divider {
+
+    border: none;
+
+    border-top: 2px solid #e5e7eb;
+
+    margin: 32px 0;
+}
+
+.course-quote {
+
+    border-left: 4px solid #9ca3af;
+
+    padding-left: 18px;
+
+    font-style: italic;
+
+    color: #4b5563;
+
+    margin: 24px 0;
+}
+
+.course-list {
+
+    margin-left: 24px;
+
+    margin-bottom: 18px;
+
+    line-height: 1.8;
+}
+
+.course-nav {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 40px;
+}

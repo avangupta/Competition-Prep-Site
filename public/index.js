@@ -107,13 +107,15 @@ async function loadBots() {
             botTags.appendChild(tag);
         }
 
-        const descMaker = document.createElement("option-desc");
+        const descMaker = document.createElement("div");
+        descMaker.classList.add("option-desc");
         descMaker.textContent = `Made by ${availableBots[name].owner}`;
 
         let descQ;
         if (bigDatabase[name])
         {
-            descQ = document.createElement("option-desc");
+            descQ = document.createElement("div");
+            descQ.classList.add("option-desc");
             descQ.textContent = `${bigDatabase[name].length} questions`;
         }
 
@@ -188,10 +190,12 @@ async function loadBots() {
             botTags.appendChild(tag);
         }
 
-        const descMaker = document.createElement("option-desc");
+        const descMaker = document.createElement("div");
+        descMaker.classList.add("option-desc");
         descMaker.textContent = `Made by ${availableBots[name].owner}`;
 
-        const descFav = document.createElement("option-desc");
+        const descFav = document.createElement("div");
+        descFav.classList.add("option-desc");
         const favs = availableBots[name].favorited.length;
         if (favs >= 100)
         {
@@ -229,7 +233,8 @@ async function loadBots() {
         let descQ;
         if (bigDatabase[name])
         {
-            descQ = document.createElement("option-desc");
+            descQ = document.createElement("div");
+            descQ.classList.add("option-desc");
             descQ.textContent = `${bigDatabase[name].length} questions`;
         }
 
@@ -305,10 +310,12 @@ async function loadBots() {
             botTags.appendChild(tag);
         }
 
-        const descMaker = document.createElement("option-desc");
+        const descMaker = document.createElement("div");
+        descMaker.classList.add("option-desc");
         descMaker.textContent = `Made by ${availableBots[name].owner}`;
 
-        const descFav = document.createElement("option-desc");
+        const descFav = document.createElement("div");
+        descFav.classList.add("option-desc");
         const favs = availableBots[name].favorited.length;
         if (favs >= 100)
         {
@@ -346,7 +353,8 @@ async function loadBots() {
         let descQ;
         if (bigDatabase[name])
         {
-            descQ = document.createElement("option-desc");
+            descQ = document.createElement("div");
+            descQ.classList.add("option-desc");
             descQ.textContent = `${bigDatabase[name].length} questions`;
         }
 

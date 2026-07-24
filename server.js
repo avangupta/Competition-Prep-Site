@@ -113,22 +113,39 @@ const availableBots = {
 };
 
 const availableCourses = {
-  "Glaciology for Dummies": {
-    topics: ["Earth Science", "Glaciology"],
+  "Genetics & DNA for Dummies": {
+    topics: ["Biology", "Genetics"],
     difficulty: 30,
     time: 30,
-    tags: {tag1: "Earth Science", tag2: "Glaciers", tag3: "Easy"},
-    description: "This course delves into the study of glacier formation and glacial processes, all the while putting information in an easily-understood way.",
-    owner: "Avan Gupta"
+    tags: {tag1: "Life Science", tag2: "Biology", tag3: "Easy"},
+    description: "This course delves into the study of genetics, DNA, and its importance in an organism, all the while putting information together in an easily-understood way.",
+    owner: "Avan Gupta",
+    blocks: [
+        {type: "heading", text: "Introduction to Genetics"},
+        {type: "paragraph", text: "Genetics is the study of how information is stored in DNA. But what is DNA in the first place?"},
+        {type: "paragraph", text: "DNA is solely made up of many, many nucleotides. Each individual nucleotide has three parts: the sugar, the phosphate, and the base. The sugar and phosphate work together to form a 'sugar-phosphate backbone', but the bases are the only parts that help with storing information."},
+        {type: "callout", text: "DNA stores info through nitrogenous bases: Adenine(A), Thymine(T), Cytosine(C), and Guanine(G)."},
+        {type: "pagebreak", text: "Continue to learn how the combination of A, T, C, and G affect the storage of information."},
+        {type: "heading", text: "The Role of Nitrogenous Bases"},
+        {type: "paragraph", text: "All the different bases are organized into genes, which decide what is made inside your body."},
+        {type: "paragraph", text: "Many genes make up a chromosome, which us Homo sapiens have 46 of. Remember, those 46 chromosomes are 23 as well as the same number of copies."},
+        {type: "pagebreak", text: "Continue to learn about some examples and applications of DNA."},
+        {type: "example", text: "For example, eye color varies because of specific genes in our chromosomes."},
+        {type: "quote", text: `"DNA neither cares nor knows. DNA just is. And we dance to its music. - Richard Dawkins"`},
+        {type: "divider", text: ""},
+        {type: "list", text: "Other animals have different amounts of chromosomes."},
+        {type: "example", text: "For example, dogs have 79 chromosomes(39 pairs)."}
+    ]
   },
   "Crash Course Physics": {
     topics: ["Physics", "Entropy Sciences"],
     difficulty: 55,
     time: 90,
     tags: {tag1: "Physics", tag2: "High School", tag3: "Crash Course"},
-    description: "This course delves into the study of physics, especially entropy, all the while putting information in an easily-understood way.",
-    owner: "Avan Gupta"
-  },
+    description: "This course delves into the study of physics, especially entropy, all the while putting information together in an easily-understood way.",
+    owner: "Avan Gupta",
+    blocks: [{type: "pagebreak", text: ""}]
+  }
 };
 
 const users = {};

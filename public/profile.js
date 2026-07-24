@@ -88,10 +88,17 @@ async function loadVals()
             const x = Object.values(data2.book[umbTopic]);
             if(x.length > 0)
             {
-                const sum = x.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level + currentPropertyObj.xp/(25 * (currentPropertyObj.level ** 2 - currentPropertyObj.level + 4)), 0);
-                document.getElementById(umbTopic).textContent = Math.round(sum * 100/x.length) / 100;
+                let levelSum = x.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.level, 0);
+                let xpSum = x.reduce((accumulator, currentPropertyObj) => accumulator + currentPropertyObj.xp, 0);
+                while(xpSum > 25 * (levelSum ** 2 - levelSum + 4))
+                {
+                    levelSum++;
+                    xpSum -= 25 * (levelSum ** 2 - levelSum + 4);
+                }
+                const sum = levelSum + xpSum/(25 * (levelSum ** 2 - levelSum + 4));
+                document.getElementById(umbTopic).textContent = `Score: ${Math.round(sum * 100) / 100}`;
             }
-            else { document.getElementById(umbTopic).textContent = 1; }
+            else { document.getElementById(umbTopic).textContent = "Score: 1"; }
         }
     }
 }

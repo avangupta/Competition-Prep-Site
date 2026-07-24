@@ -80,7 +80,6 @@ async function loadCourses()
             (allBotTags[0].toLowerCase().includes(term) && allBotTags[0]) || (allBotTags[1].toLowerCase().includes(term) && allBotTags[1]) ||
             (name.toLowerCase().includes(term)) || (term.includes(name.toLowerCase())) )
             {
-                document.getElementById("caption").textContent = "Try being more specific with your search.";
                 const card = document.createElement("divCommunity");
                 card.classList.add("bot-card");
 
@@ -107,19 +106,33 @@ async function loadCourses()
 
                 card.appendChild(botTags);
 
-                const desc = document.createElement("option-desc");
+                const desc = document.createElement("div");
+                desc.classList.add("option-desc");
                 desc.textContent = availableBots[name].description;
                 card.appendChild(desc);
 
-                const diff = document.createElement("option-desc");
+                card.appendChild(document.createElement("h3"));
+
+                const diff = document.createElement("div");
+                diff.classList.add("option-desc");
                 diff.textContent = `Rated ${availableBots[name].difficulty / 10} / 10`;
                 card.appendChild(diff);
 
-                const descMaker = document.createElement("option-desc");
+                card.appendChild(document.createElement("h3"));
+
+                const descMaker = document.createElement("div");
+                descMaker.classList.add("option-desc");
                 descMaker.textContent = `Made by ${availableBots[name].owner}`;
                 card.appendChild(descMaker);
 
-                //card.appendChild(btn);
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.textContent = "Begin";
+                btn.onclick = async () => {
+                  window.location.href = `/course.html?course=${encodeURIComponent(name)}`;
+                };
+                card.appendChild(btn);
+
                 divCommunity.appendChild(card);
             }
         }
@@ -158,19 +171,33 @@ async function loadCourses()
 
             card.appendChild(botTags);
 
-            const desc = document.createElement("option-desc");
+            const desc = document.createElement("div");
+            desc.classList.add("option-desc");
             desc.textContent = availableBots[name].description;
             card.appendChild(desc);
 
-            const diff = document.createElement("option-desc");
+            card.appendChild(document.createElement("h3"));
+
+            const diff = document.createElement("div");
+            diff.classList.add("option-desc");
             diff.textContent = `Rated ${availableBots[name].difficulty / 10} / 10`;
             card.appendChild(diff);
 
-            const descMaker = document.createElement("option-desc");
+            card.appendChild(document.createElement("h3"));
+
+            const descMaker = document.createElement("div");
+            descMaker.classList.add("option-desc");
             descMaker.textContent = `Made by ${availableBots[name].owner}`;
             card.appendChild(descMaker);
 
-            //card.appendChild(btn);
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = "Begin";
+            btn.onclick = async () => {
+              window.location.href = `/course.html?course=${encodeURIComponent(name)}`;
+            };
+            card.appendChild(btn);
+
             divCommunity.appendChild(card);
     }
   });
